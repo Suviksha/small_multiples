@@ -5,6 +5,9 @@
 	<style>
 	select { text-align-last: right;direction: rtl}
     option { direction: rtl; }
+	.axis .tick line{
+	    visibility:hidden;
+	}
 	.line1 {
         fill: none;
         stroke: steelblue;
@@ -43,7 +46,7 @@
 					
 		d3.json("map_graph_list_list_v2.json").then(function(data){
 		        data.forEach(function(d){
-				        d.address_1=d.address_1;
+				    d.address_1=d.address_1;
 					d.address_2=d.address_2;
 					d.routes_1=d.routes_1;
 					d.routes_2=d.routes_2;
@@ -59,14 +62,14 @@
 		            .data(data)
 					.enter()
 					.append("svg")
-					.attr("class","svg")
-		                        .attr("width", width +  margin.left+ margin.right)
+					.attr("class","svg1")
+		            .attr("width", width +  margin.left+ margin.right)
 					.attr("height", height + margin.top + margin.bottom)
 					.attr("transform","translate("+ margin.left + margin.top +")");
 					
 		var line=d3.line()
 		            .x(function(d,i) {return xScale(i)})
-			    .y(function(d){return yScale(d)});
+					.y(function(d){return yScale(d)});
 					
 				
 		
@@ -74,7 +77,7 @@
 
         svgs.append("g")
            .attr("class","axis")
-	   .attr("transform", "translate(0," + height + ")")
+		   .attr("transform", "translate(0," + height + ")")
            .call(d3.axisBottom().scale(xScale));
 
         svgs.append("g")
@@ -91,25 +94,25 @@
             .attr("d",function(d){return line(d.routes_2.Monday)});	
 
         svgs.append("text")
-	    .attr("class","text1")
+		    .attr("class","text1")
             .attr("x", (width / 2))             
             .attr("y", 15+(margin.top))
-	    .attr("width",width-margin.left-margin.right)
+			.attr("width",width-margin.left-margin.right)
             .attr("text-anchor", "middle")  
             .style("font-size", "8px") 
             .text(function(d){return d.address_1;});
 			
-	svgs.append("text")
-	    .attr("class","text2")
+		svgs.append("text")
+		    .attr("class","text2")
             .attr("x", (width / 2))             
             .attr("y", 25+(margin.top))
-	    .attr("width",width-margin.left-margin.right)
+			.attr("width",width-margin.left-margin.right)
             .attr("text-anchor", "middle")  
             .style("font-size", "8px") 
             .text(function(d){return d.address_2;});
 			
 		
-	var days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+		var days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
         //Add the dropdown menu.
         d3.select("#dropdown")
@@ -131,9 +134,18 @@
 		    var newday=days[newValue];
 			console.log(newday);
 		    var t=d3.transition().duration(1000).delay(250).ease(d3.easeLinear);
-		//This piece of code is not working.	
-	        d3.selectAll(".svg.line1").transition(t).attr("d",function(d){return line(d.routes_1.newday)});
-		d3.selectAll(".svg.line2").transition(t).attr("d",function(d){return line(d.routes_2.newday)});
+			console.log("hello!")
+		 svgs.append("path")
+            .attr("class","line1")
+            .attr("d",function(d){return line(d.routes_1.newday)});
+			
+			
+        svgs.append("path")
+            .attr("class","line2")
+            .attr("d",function(d){return line(d.routes_2.newday)});
+	                //d3.selectAll(".svg1.line1").transition(t).attr("d",function(d){return line(d.routes_1.newday)});
+			//d3.selectAll(".svg1.line2").transition(t).attr("d",function(d){return line(d.routes_2.newday)});
+			//console.log("transition")
 		}
             		  
 });});
