@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset='UTF-8'>
+	<style>
+	select { text-align-last: right;direction: rtl}
+    option { direction: rtl; }
+	.line1 {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 2px;
+    }
+	.line2 {
+        fill: none;
+        stroke: red;
+        stroke-width: 2px;
+    }
+	</style>
+    <title>Small Multiples</title>
+	<script src="https://d3js.org/d3.v5.min.js"></script>
+	
+</head>
+<body>
+<div>
+<select id="dropdown" ></select>
+</div>
+    <script>
+	   var margin={top:2,right:2,bottom:2,left:2},
+        width=125-margin.left-margin.right;
+        height=125-margin.top-margin.bottom;
+
+        //var width=125,height=125;		
+		
+		var xScale=d3.scaleLinear()
+		             .domain([0,24])
+		             .range([0,width]);
+					
+		var yScale=d3.scaleLinear()
+		             .domain([0,60])
+		             .range([height,0]);
+					 
+		
+					
+		d3.json("map_graph_list_list_v2.json").then(function(data){
+		        data.forEach(function(d){
+				    d.address_1=d.address_1;
+					d.address_2=d.address_2;
+					d.routes_1=d.routes_1;
+					d.routes_2=d.routes_2;
+					d.name_1=d.routes_1.name;
+					d.name_2=d.routes_2.name;
+					d.monday_1=d.routes_1.Monday;
+					day_key=d3.keys(d.routes_1);
+					day_key.splice(0,1);
+					//console.log(day_key);
+					
+					       
+		var svgs= d3.select("body").selectAll("svg")
+		            .data(data)
+					.enter()
+					.append("svg")
+					.attr("class","svg")
+		            .attr("width", width +  margin.left+ margin.right)
+					.attr("height", height + margin.top + margin.bottom)
+					.attr("transform","translate("+ margin.left + margin.top +")");
+					
+		var line=d3.line()
+		            .x(function(d,i) {return xScale(i)})
+					.y(function(d){return yScale(d)});
+					
+				
+		
+
+
+        svgs.append("g")
+           .attr("class","axis")
+		   .attr("transform", "translate(0," + height + ")")
+           .call(d3.axisBottom().scale(xScale));
+
+        svgs.append("g")
+           .attr("class","axis")
+           .call(d3.axisLeft().scale(yScale));	
+
+        svgs.append("path")
+            .attr("class","line1")
+            .attr("d",function(d){return line(d.routes_1.Monday)});
+			
+			
+        svgs.append("path")
+            .attr("class","line2")
+            .attr("d",function(d){return line(d.routes_2.Monday)});	
+
+        svgs.append("text")
+		    .attr("class","text1")
+            .attr("x", (width / 2))             
+            .attr("y", 15+(margin.top))
+			.attr("width",width-margin.left-margin.right)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "8px") 
+            .text(function(d){return d.address_1;});
+			
+		svgs.append("text")
+		    .attr("class","text2")
+            .attr("x", (width / 2))             
+            .attr("y", 25+(margin.top))
+			.attr("width",width-margin.left-margin.right)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "8px") 
+            .text(function(d){return d.address_2;});
+			
+		
+		var days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+        //Add the dropdown menu.
+        d3.select("#dropdown")
+          .selectAll("option")
+          .data(data)
+          .enter()
+          .append("option")
+          .attr("value", function(d,i) { return i; })
+          .text(function(d,i) { return days[i]; });	
+
+        //Change the values in dropdown.
+        d3.select("#dropdown")
+           .on("change",function(){
+            var newValue=d3.select(this).property('value');
+			update(newValue);
+			console.log(newValue);});
+			
+        function update(newValue){
+		    var newday=days[newValue];
+			console.log(newday);
+		    var t=d3.transition().duration(1000).delay(250).ease(d3.easeLinear);
+			
+	        d3.selectAll(".svg.line1").transition(t).attr("d",function(d){return line(d.routes_1.newday)});
+			d3.selectAll(".svg.line2").transition(t).attr("d",function(d){return line(d.routes_2.newday)});
+		}
+            		  
+});});
+
+
+		
+		
+	</script>
+</body>
+</html>
